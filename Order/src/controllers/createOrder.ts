@@ -23,7 +23,7 @@ export const createOrder = async (
 
     const email = await client.get(`user:${userid}`);
     const newOrder: IOrder = new Order({
-      userId: userid,
+      userId: userId,
       items: items,
       totalAmount,
     });
