@@ -12,13 +12,27 @@ import {
 import { FULLFILLMENT_API } from "../utils/dotenvVariables";
 import messages from "../utils/message";
 
+
+
+
 export const createPayment = async (req: Request, res: Response) => {
   const consumer = new Consumer();
   const producer = new Producer();
 
   let orderDetails: any = null;
+  let responseSent = false; // Flag to check if response has been sent
 
-  // Define a callback function to handle message consumption
+  const sendResponse = (status: number, message: string, data?: any) => {
+    if (!responseSent) {
+      responseSent = true;
+      if (status >= 400) {
+        sendErrorResponse(res, status, message);
+      } else {
+        sendSuccessResponse(res, status, message, data);
+      }
+    }
+  };
+
   const handleMessage = (
     data: any,
     callback: (error: Error | null) => void
@@ -26,44 +40,39 @@ export const createPayment = async (req: Request, res: Response) => {
     try {
       console.log(`Received data: ${JSON.stringify(data)}`);
       orderDetails = data;
-      callback(null); // Success
+      callback(null);
     } catch (error) {
-      callback(error); // Error
+      callback(error);
     }
   };
 
-  // Register the callback to handle messages
   consumer.on("message", (data) =>
     handleMessage(data, (error) => {
       if (error) {
         console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-        sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
+        sendResponse(500, messages.messages.ERROR_PROCESSING_MESSAGE);
         return;
       }
-
-      // Proceed with payment processing after successfully receiving the message
       processPayment();
     })
   );
 
-  // Handle consumer errors
   consumer.on("error", (error) => {
     console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-    sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
+    sendResponse(500, messages.messages.ERROR_PROCESSING_MESSAGE);
   });
 
-  // Start consuming messages
   consumer.consumeMessages().catch((error) => {
     console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-    sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
+    sendResponse(500, messages.messages.ERROR_PROCESSING_MESSAGE);
   });
 
-  // Function to handle payment processing
   const processPayment = async () => {
     try {
-      // Access specific properties
       const orderId = orderDetails?.message.orderId;
       const totalAmount = orderDetails?.message.totalAmount;
+      const email = orderDetails?.message.email;
+      console.log(email, "email");
 
       const status = paymentProcess();
 
@@ -72,29 +81,27 @@ export const createPayment = async (req: Request, res: Response) => {
         amount: totalAmount,
         paymentMethod: "other",
         status: status.value,
+        email: email,
       });
 
       await newPayment.save();
 
-      await producer.publishMessage("info", newPayment);
+      const paymentObject = newPayment.toObject() as Record<string, any>;
+      const paymentWithEmail = { ...paymentObject, email };
+      console.log(paymentWithEmail, "paymentWithEmail");
+      await producer.publishMessage("info", paymentWithEmail);
 
-      // Send the response
       const data = {
         orderId,
         totalAmount,
       };
 
-      sendSuccessResponse(
-        res,
-        201,
-        messages.messages.PAYMENT_SUCCESS_CREATED,
-        data
-      );
+      sendResponse(201, messages.messages.PAYMENT_SUCCESS_CREATED, data);
 
       await axios.get(FULLFILLMENT_API);
     } catch (error) {
       console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-      sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
+      sendResponse(500, messages.messages.ERROR_PROCESSING_MESSAGE);
     }
   };
 };

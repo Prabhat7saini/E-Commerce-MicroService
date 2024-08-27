@@ -8,12 +8,7 @@ const orderMessages = {
   INVALID_INPUT: "Invalid input",
   ORDER_NOT_FOUND: "Order not found",
   ORDER_UPDATE_SUCCESSFULLY: "Order updated successfully",
-  USER_NOT_FOUND: "User not found",
-  TOKEN_MISSING: "token missing",
-  Invalid_Token:"invalid token",
 };
-
-
 
 const rabbitmqMessages = {
   FAILED_TO_CLOSE_CONNECTION: "Failed to close RabbitMQ connection:",
@@ -22,7 +17,5 @@ const rabbitmqMessages = {
   CONNECTED_AND_CHANNEL_CREATED: "Connected to RabbitMQ and channel created.",
   FAILED_TO_CONNECT: "Failed to connect to RabbitMQ:",
 };
-
-
 
 export default { rabbitmqMessages, orderMessages };

@@ -2,7 +2,7 @@
 import { Status } from "./interface";
 
 // Define the statuses as objects
-const statuses: Status[] = [{ value: "completed" }, { value: "cancelled" }];
+const statuses: Status[] = [{ value: "completed" }, { value: "failed" }];
 
 // Function to get a random status
 export function paymentProcess(): Status {

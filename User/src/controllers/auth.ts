@@ -1,10 +1,16 @@
-import {  Response } from "express";
+import { Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user"; // Adjust the path as necessary
-import { SignUpRequest ,LoginRequest} from "../utils/interface";
+import { SignUpRequest, LoginRequest } from "../utils/interface";
 import { JWT_SECRET } from "../utils/dotenvVariables";
-import Producer from '../utils/RabbitMQ/producer'
+import Producer from "../utils/RabbitMQ/producer";
+import errorMessages from "../utils/errormessage";
+import { client } from "../redis/index";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../utils/sendResponceFunction";
 
 export const signUp = async (
   req: SignUpRequest,
@@ -14,18 +20,14 @@ export const signUp = async (
     const { name, email, password } = req.body;
 
     if (!email || !password || !name) {
-      return res.status(403).json({
-        success: false,
-        message: "All fields are required",
-      });
+      sendErrorResponse(res, 403, errorMessages.FIELD_REQUIRED);
+      return;
     }
 
     const checkUserPresent = await User.findOne({ email });
     if (checkUserPresent) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists",
-      });
+      sendErrorResponse(res, 400, errorMessages.USER_EXIST);
+      return;
     }
 
     // Hash Password
@@ -36,17 +38,12 @@ export const signUp = async (
       email,
       password: hashedPassword,
     });
-
-    return res.status(200).json({
-      success: true,
-      message: "Account Successfully created",
-    });
+    sendSuccessResponse(res, 200, errorMessages.ACCOUNT_CREATED, user);
+    return;
   } catch (error) {
     console.error(`Error while signing up: ${error}`);
-    return res.status(500).json({
-      success: false,
-      message: "An error occurred while signing up. Try again later",
-    });
+    sendErrorResponse(res, 500, errorMessages.SIGNUP_ERROR);
+    return;
   }
 };
 
@@ -59,18 +56,14 @@ export const login = async (
     const producer = new Producer();
 
     if (!email || !password) {
-      return res.status(403).json({
-        success: false,
-        message: "All fields are required",
-      });
+      sendErrorResponse(res, 403, errorMessages.FIELD_REQUIRED);
+      return;
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User does not exist. Please first sign up",
-      });
+      sendErrorResponse(res, 401, errorMessages.USER_NOT_EXITS);
+      return;
     }
 
     if (await bcrypt.compare(password, user.password)) {
@@ -84,13 +77,20 @@ export const login = async (
       });
 
       user.token = token;
-      user.password = undefined; // Remove password before sending response
+      user.password = undefined;
 
       const options = {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
       };
-      await producer.publishMessage("info",user)
+
+      // publish user to rabbit mq server
+      // await producer.publishMessage("info", user);
+
+      if (!(await client.get(`${user._id}`))) {
+        await client.set(`user:${user._id}`, `${user.email},`, "EX", 10800);
+      }
+
       return res.cookie("token", token, options).status(200).json({
         success: true,
         token,
@@ -98,16 +98,12 @@ export const login = async (
         message: "Login was successful. You have access to your account.",
       });
     } else {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid password",
-      });
+      sendErrorResponse(res, 401, errorMessages.Invalid_password);
+      return;
     }
   } catch (error) {
-    console.error(`Error while logging in: ${error}`);
-    return res.status(500).json({
-      success: false,
-      message: "Login failed. Try again later",
-    });
+    console.error(`Login error ${errorMessages.server_ERROR} ${error}`);
+    sendErrorResponse(res, 500, errorMessages.server_ERROR);
+    return;
   }
 };

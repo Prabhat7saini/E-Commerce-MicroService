@@ -2,40 +2,50 @@ import { Request, Response } from "express";
 import Order from "../models/order";
 import { IOrder } from "utils/interface";
 import Producer from "../utils/Rabbitmq/producer";
-import message from '../utils/message'
-import { sendErrorResponse, sendSuccessResponse } from "../utils/sendresponceFunction";
+import message from "../utils/message";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../utils/sendresponceFunction";
+import { client } from "../redis/client";
 
 export const createOrder = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { userId, items, totalAmount } = req.body;
+    const { userId, items, totalAmount, userid } = req.body;
 
     if (!userId || !items || !totalAmount) {
-       sendErrorResponse(res,400,message.orderMessages.INVALID_INPUT)
-       return;
-
-    
+      sendErrorResponse(res, 400, message.orderMessages.INVALID_INPUT);
+      return;
     }
-    // console.log(userId, items, totalAmount, "check");
 
-    // Create a new order instance
+    const email = await client.get(`user:${userid}`);
     const newOrder: IOrder = new Order({
-      userId: userId,
+      userId: userid,
       items: items,
       totalAmount,
     });
+  
+    const orderWithEmail = {
+      ...newOrder.toObject(), 
+      email, 
+    };
 
     const producer = new Producer();
-    await producer.publishMessage("info", newOrder);
+    await producer.publishMessage("info", orderWithEmail);
     // Save the order to the database
+
+    console.log(orderWithEmail, "email");
     await newOrder.save();
-    sendSuccessResponse(res,201,message.orderMessages.ORDER_CREATED_SUCCESSFULLY)
-    
+    sendSuccessResponse(
+      res,
+      201,
+      message.orderMessages.ORDER_CREATED_SUCCESSFULLY
+    );
   } catch (error) {
     console.error(message.orderMessages.ERROR_CREATING_ORDER, error);
-    sendErrorResponse(res,500,message.orderMessages.INTERNAL_SERVER_ERROR)
-    
+    sendErrorResponse(res, 500, message.orderMessages.INTERNAL_SERVER_ERROR);
   }
 };

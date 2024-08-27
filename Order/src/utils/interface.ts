@@ -13,6 +13,6 @@ export interface IOrder extends Document {
   userId: string;
   items: Item[];
   totalAmount: string;
-  status: "pending" | "completed" | "shipped" | "cancelled"; // Adjust based on your needs
+  status: "pending" | "completed" | "shipped" | "cancelled"; 
  
 }

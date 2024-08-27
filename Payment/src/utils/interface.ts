@@ -1,4 +1,5 @@
 export interface IPayment extends Document {
+  toObject(): unknown;
   save(): unknown;
   paymentId: string;
   orderId: string;
@@ -10,5 +11,5 @@ export interface IPayment extends Document {
 
 
 export interface Status {
-  value: "completed" | "cancelled";
+  value: "completed" | "failed";
 }

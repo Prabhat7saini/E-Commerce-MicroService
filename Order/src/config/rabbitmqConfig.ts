@@ -7,7 +7,7 @@ interface RabbitMQConfig {
 // Define the configuration object
 const rabbitMQConfig: RabbitMQConfig = {
   url: "amqp://localhost",
-  exchangeName: "logExchange",
+  exchangeName: "orderExchange",
 };
 
 // Export the configuration object

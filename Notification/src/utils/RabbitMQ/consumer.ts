@@ -7,36 +7,28 @@ class Consumer extends EventEmitter {
   private channel?: amqp.Channel;
   private connection?: amqp.Connection;
 
-  async consumeMessages() {
-    // const exchangeName=rabbitMQConfig.exchangeName
+
+  async consumeMessages(queueName: string, exchangeName: string) {
     if (!this.connection || !this.channel) {
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel();
 
       // Ensure the properties match with the existing exchange
-      await this.channel.assertExchange(
-        rabbitMQConfig.exchangeName,
-        "direct",
-        {
-          durable: false,
-        }
-      );
-      const queue = await this.channel.assertQueue("userQueue");
+      await this.channel.assertExchange(exchangeName, "direct", {
+        durable: false,
+      });
 
-      await this.channel.bindQueue(
-        queue.queue,
-        rabbitMQConfig.exchangeName,
-        "info"
-      );
+      const queue = await this.channel.assertQueue(queueName);
+
+      await this.channel.bindQueue(queue.queue, exchangeName, "info");
     }
 
     this.channel?.consume(
-      "userQueue",
-      (order) => {
-        if (order) {
-          const data = JSON.parse(order.content.toString());
-          //   console.log(data);
-          this.channel?.ack(order);
+      queueName,
+      (message) => {
+        if (message) {
+          const data = JSON.parse(message.content.toString());
+          this.channel?.ack(message);
 
           // Emit an event when a message is received
           this.emit("message", data);

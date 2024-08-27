@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import amqp from "amqplib/callback_api";
 import axios from "axios";
+import Producer from "../utils/RabbitMQ/producer"
 import Consumer from "../utils/RabbitMQ/consumer";
 import { UpdateOrder_API } from "../utils/dotenvVariables";
 
 export const fulfillment = (req: Request, res: Response) => {
   const consumer = new Consumer();
+  const producer = new Producer();
   let paymentDetails: any = null;
 
   // Define a callback function to handle message consumption
@@ -66,6 +68,15 @@ export const fulfillment = (req: Request, res: Response) => {
       });
 
       // Send a success response
+      const data = {
+        email: paymentDetails?.message.email,
+        paymentId: paymentDetails?.message.paymentId,
+        orderId:paymentDetails?.message.orderId,
+        status:paymentDetails?.message.status,
+      };
+
+      console.log("data sent ",data);
+     await producer.publishMessage("info",data);
       res
         .status(200)
         .json({ message: "Order updated successfully", success: true });
