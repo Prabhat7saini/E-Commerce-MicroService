@@ -14,16 +14,16 @@ export const createOrder = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { userId, items, totalAmount, userid } = req.body;
+    const { items, totalAmount, userid } = req.body;
 
-    if (!userId || !items || !totalAmount) {
+    if (!userid || !items || !totalAmount) {
       sendErrorResponse(res, 400, message.orderMessages.INVALID_INPUT);
       return;
     }
 
     const email = await client.get(`user:${userid}`);
     const newOrder: IOrder = new Order({
-      userId: userId,
+      userId: userid,
       items: items,
       totalAmount,
     });
