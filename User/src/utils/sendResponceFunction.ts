@@ -1,8 +1,8 @@
 import { Response } from "express";
 
-// Define the type for the data parameter in the success response function
+
 interface SuccessData {
-  [key: string]: any; // You can replace 'any' with a more specific type if needed
+  [key: string]: any; 
 }
 
 const sendSuccessResponse = (
@@ -19,7 +19,7 @@ const sendSuccessResponse = (
   });
 };
 
-// Function to send an error response
+
 const sendErrorResponse = (
   res: Response,
   statusCode: number,

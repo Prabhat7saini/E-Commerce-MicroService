@@ -84,8 +84,7 @@ export const login = async (
         httpOnly: true,
       };
 
-      // publish user to rabbit mq server
-      // await producer.publishMessage("info", user);
+     
 
       if (!(await client.get(`${user._id}`))) {
         await client.set(`user:${user._id}`, `${user.email},`, "EX", 10800);

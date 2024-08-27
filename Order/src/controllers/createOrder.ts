@@ -36,7 +36,7 @@ export const createOrder = async (
     const producer = new Producer();
     await producer.publishMessage("info", orderWithEmail);
     // Save the order to the database
-
+ 
     console.log(orderWithEmail, "email");
     await newOrder.save();
     sendSuccessResponse(

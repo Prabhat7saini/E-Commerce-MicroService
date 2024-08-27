@@ -1,11 +1,11 @@
-import mailSender from "../utils/mainSender"; // Update the import path as needed
+import mailSender from "../utils/mainSender"; 
 import {createEmailBody} from '../config/emailTemplate'
 
-// Define the type for the sendMailForOtp function parameters
+
 type SendMailForOtpParams = {
   email: string;
   orderId?: string;
-  paymentId?: string; // Added paymentId parameter
+  paymentId?: string; 
   title: string;
   status: string;
 };
@@ -18,7 +18,7 @@ const sendMails = async ({
   status,
 }: SendMailForOtpParams): Promise<void> => {
   try {
-    // Construct the email body with orderId and paymentId
+    
     const emailBody = createEmailBody({ orderId, paymentId, status });
     const mainResponse = await mailSender({
       email,

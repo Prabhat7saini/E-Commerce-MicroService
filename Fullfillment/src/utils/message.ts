@@ -1,6 +1,4 @@
-// orderMessages.ts
 
-// Define all order-related messages in a single object
 const orderMessages = {
   ORDER_CREATED_SUCCESSFULLY: "Order created successfully",
   ERROR_CREATING_ORDER: "Error creating order:",

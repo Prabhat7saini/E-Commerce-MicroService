@@ -12,7 +12,7 @@ class Consumer extends EventEmitter {
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel();
 
-      // Ensure the properties match with the existing exchange
+      
       await this.channel.assertExchange(exchangeName, "direct", {
         durable: false,
       });

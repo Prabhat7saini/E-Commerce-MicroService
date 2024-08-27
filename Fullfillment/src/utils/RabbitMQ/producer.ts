@@ -2,34 +2,33 @@ import amqp from "amqplib";
 import { rabbitMQConfig } from "../../config/rabbitmqConfig";
 import message from "../message"
 
-// Define the type for the message
 type Message = string | object;
 
 class Producer {
   private channel?: amqp.Channel;
   private connection?: amqp.Connection;
 
-  // Method to connect to RabbitMQ
+  
   private async connectToRabbitMQ(): Promise<void> {
     if (this.connection && this.channel) {
-      return; // Already connected
+      return; 
     }
 
     try {
-      // Create a new connection and channel if not already present
+      
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel();
       console.log(message.rabbitmqMessages.CONNECTED_AND_CHANNEL_CREATED);
     } catch (error) {
       console.error(message.rabbitmqMessages.FAILED_TO_CONNECT, error);
-      throw error; // Re-throw the error for upstream handling
+      throw error; 
     }
   }
 
-  // Method to publish a message
+  
   async publishMessage(routingKey: string, message: Message): Promise<void> {
     if (!this.channel || !this.connection) {
-      // Ensure connection and channel are established
+      
       await this.connectToRabbitMQ();
     }
 
@@ -57,14 +56,14 @@ class Producer {
       );
     } catch (error) {
       console.error("Failed to publish message:", error);
-      // Handle errors that might necessitate reconnection
+      
       if (this.channel && this.connection) {
-        await this.closeConnection(); // Close on error if necessary
+        await this.closeConnection(); 
       }
     }
   }
 
-  // Method to close connection and channel
+  
   async closeConnection(): Promise<void> {
     try {
       if (this.channel) {

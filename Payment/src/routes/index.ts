@@ -1,9 +1,9 @@
 import { Router } from "express";
-import v1OrderRoutes from "./V1/payment";
+import v1PaymentRoutes from "./V1/payment";
 
 const router = Router();
 
-// Register versioned routes
-router.use("/v1", v1OrderRoutes);
+
+router.use("/v1", v1PaymentRoutes);
 
 export default router;

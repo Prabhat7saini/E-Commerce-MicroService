@@ -10,5 +10,4 @@ const rabbitMQConfig: RabbitMQConfig = {
   exchangeName: "fullfillexhange",
 };
 
-// Export the configuration object
 export { rabbitMQConfig };

@@ -9,5 +9,5 @@ const rabbitMQConfig: RabbitMQConfig = {
   exchangeName: "PaymentExchange",
 };
 
-// Export the configuration object
+
 export { rabbitMQConfig };

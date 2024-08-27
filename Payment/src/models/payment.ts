@@ -2,9 +2,9 @@ import mongoose, { Schema, Document } from "mongoose";
 import { IPayment } from "utils/interface";
 import { v4 as uuidv4 } from "uuid";
 
-// Define the interface for the Payment document
 
-// Define the schema for the Payment model
+
+
 const paymentSchema = new Schema<IPayment>(
   {
     paymentId: {
@@ -36,7 +36,7 @@ const paymentSchema = new Schema<IPayment>(
   { timestamps: true }
 );
 
-// Create the Mongoose model
+
 const Payment = mongoose.model<IPayment>("Payment", paymentSchema);
 
 export default Payment;

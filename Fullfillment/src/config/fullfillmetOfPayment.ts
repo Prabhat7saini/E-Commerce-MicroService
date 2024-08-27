@@ -10,7 +10,7 @@ export const fulfillment = (req: Request, res: Response) => {
   const producer = new Producer();
   let paymentDetails: any = null;
 
-  // Define a callback function to handle message consumption
+  
   const handleMessage = (
     data: any,
     callback: (error: Error | null) => void
@@ -18,13 +18,13 @@ export const fulfillment = (req: Request, res: Response) => {
     try {
       console.log("Processing received data:", data);
       paymentDetails = data;
-      callback(null); // Success
+      callback(null); 
     } catch (error) {
-      callback(error); // Error
+      callback(error); 
     }
   };
 
-  // Register the callback to handle messages
+  
   consumer.on("message", (data) =>
     handleMessage(data, (error) => {
       if (error) {
@@ -35,12 +35,12 @@ export const fulfillment = (req: Request, res: Response) => {
         return;
       }
 
-      // Proceed with updating the order after successfully receiving the message
+      
       updateOrder();
     })
   );
 
-  // Handle consumer errors
+  
   consumer.on("error", (error) => {
     console.error("Error consuming messages:", error);
     res
@@ -48,7 +48,7 @@ export const fulfillment = (req: Request, res: Response) => {
       .json({ message: "Error consuming messages", success: false });
   });
 
-  // Start consuming messages
+  
   consumer.consumeMessages().catch((error) => {
     console.error("Error starting message consumption:", error);
     res
@@ -56,7 +56,7 @@ export const fulfillment = (req: Request, res: Response) => {
       .json({ message: "Error starting message consumption", success: false });
   });
 
-  // Function to handle order updating
+  
   const updateOrder = async () => {
     try {
       const orderId = paymentDetails?.message.orderId;
@@ -67,7 +67,7 @@ export const fulfillment = (req: Request, res: Response) => {
         orderId,
       });
 
-      // Send a success response
+      
       const data = {
         email: paymentDetails?.message.email,
         paymentId: paymentDetails?.message.paymentId,

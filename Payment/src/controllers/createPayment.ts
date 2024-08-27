@@ -20,7 +20,7 @@ export const createPayment = async (req: Request, res: Response) => {
   const producer = new Producer();
 
   let orderDetails: any = null;
-  let responseSent = false; // Flag to check if response has been sent
+  let responseSent = false; 
 
   const sendResponse = (status: number, message: string, data?: any) => {
     if (!responseSent) {

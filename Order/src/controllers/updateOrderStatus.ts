@@ -10,13 +10,13 @@ export const updatestatus = async (req: Request, res: Response) => {
   try {
     const { status, orderId } = req.body;
 
-    // Check if status and orderId are provided
+    
     if (!status || !orderId) {
       sendErrorResponse(res, 400, message.orderMessages.INVALID_INPUT);
       return;
     }
 
-    // Find the order by orderId and update its status
+    
     const currentOrder = await Order.findOneAndUpdate(
       { orderId },
       { status },
@@ -28,7 +28,7 @@ export const updatestatus = async (req: Request, res: Response) => {
       return;
     }
 
-    // console.log(currentOrder,"orderupdate successfully \n")
+     
     sendSuccessResponse(res,200,message.orderMessages.ORDER_UPDATE_SUCCESSFULLY);
 
     return;

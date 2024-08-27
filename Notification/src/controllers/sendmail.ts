@@ -5,9 +5,6 @@ import messages from "../utils/message";
 import { Request, Response } from "express";
 import { rabbitMQConfig } from "../config/rabbitmqConfig";
 
-// Define the email details
-
-// Call the mailSender function
 export const sendEmail = async () => {
   try {
 
@@ -32,11 +29,6 @@ export const sendEmail = async () => {
       handleMessage(data, (error) => {
         if (error) {
           console.error(messages, error);
-          // sendErrorResponse(
-          //   res,
-          //   500,
-          //   messages.messages.ERROR_PROCESSING_MESSAGE
-          // );
           return;
         }
         sendmails();
@@ -45,14 +37,13 @@ export const sendEmail = async () => {
 
     consumer.on("error", (error) => {
       console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-      // sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
+      
     });
 
     consumer
       .consumeMessages("fullfillQueue", rabbitMQConfig.exchangeName)
       .catch((error) => {
         console.error(messages.messages.ERROR_PROCESSING_MESSAGE, error);
-        // sendErrorResponse(res, 500, messages.messages.ERROR_PROCESSING_MESSAGE);
       });
 
     const sendmails = async () => {
