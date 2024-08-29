@@ -55,7 +55,7 @@ export const createWelcomeEmailBody = ({
         <p>If you have any questions, feel free to reach out to our support team at support@example.com.</p>
         <div class="footer">
           <p>Thank you for choosing us!</p>
-          <p>&copy; 2024 Your Company. All rights reserved.</p>
+          <p>&copy; 2024 E-Commerce_microServices. All rights reserved.</p>
         </div>
       </div>
     </body>
