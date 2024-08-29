@@ -8,34 +8,71 @@ class Consumer extends EventEmitter {
   private connection?: amqp.Connection;
 
 
-  async consumeMessages(queueName: string, exchangeName: string) {
+  async consumeMessages() {
     if (!this.connection || !this.channel) {
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel();
+      const exchangeName = rabbitMQConfig.exchangeName;
+      const UserQueue = "userQueue";
+      const orderQueue = "orderQueue";
+      const paymentQueue = "paymentQueue";
 
-      
+
       await this.channel.assertExchange(exchangeName, "direct", {
         durable: false,
       });
 
-      const queue = await this.channel.assertQueue(queueName);
+      const queue1 = await this.channel.assertQueue(UserQueue);
+      const queue2 = await this.channel.assertQueue(orderQueue);
+      const queue3 = await this.channel.assertQueue(paymentQueue)
 
-      await this.channel.bindQueue(queue.queue, exchangeName, "info");
+      await this.channel.bindQueue(queue1.queue, exchangeName, "user");
+      await this.channel.bindQueue(queue2.queue, exchangeName, "order");
+      await this.channel.bindQueue(queue3.queue, exchangeName, "payment");
+
+      this.channel?.consume(
+        UserQueue,
+        (message) => {
+          if (message) {
+            const data = JSON.parse(message.content.toString());
+            this.channel?.ack(message);
+
+
+            this.emit("message1", data);
+          }
+        },
+        { noAck: false }
+      );
+      this.channel?.consume(
+        orderQueue,
+        (message) => {
+          if (message) {
+            const data = JSON.parse(message.content.toString());
+            this.channel?.ack(message);
+
+
+            this.emit("message2", data);
+          }
+        },
+        { noAck: false }
+      );
+      this.channel?.consume(
+        paymentQueue,
+        (message) => {
+          if (message) {
+            const data = JSON.parse(message.content.toString());
+            this.channel?.ack(message);
+
+
+            this.emit("message3", data);
+          }
+        },
+        { noAck: false }
+      );
+      console.log('Waiting for messages...');
     }
 
-    this.channel?.consume(
-      queueName,
-      (message) => {
-        if (message) {
-          const data = JSON.parse(message.content.toString());
-          this.channel?.ack(message);
 
-          
-          this.emit("message", data);
-        }
-      },
-      { noAck: false }
-    );
   }
 
   async closeConnection(): Promise<void> {

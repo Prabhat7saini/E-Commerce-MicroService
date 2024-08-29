@@ -2,10 +2,12 @@ export const createEmailBody = ({
   orderId,
   paymentId,
   status,
+  totalAmount,
 }: {
   orderId?: string;
   paymentId?: string;
   status: string;
+  totalAmount?: string; // Added totalAmount with optional type
 }): string => {
   return `
     <!DOCTYPE html>
@@ -51,16 +53,18 @@ export const createEmailBody = ({
         <h1>Thank You for Visiting Our Site!</h1>
         <p>We appreciate your business and want to make sure you have all the information you need.</p>
         <p>If you have placed an order with us, here are the details:</p>
-        ${
-          orderId
-            ? `<p>Your order ID is <span class="highlight">${orderId}</span>.</p>`
-            : ""
-        }
-        ${
-          paymentId
-            ? `<p>Your payment ID is <span class="highlight">${paymentId}</span>.</p>`
-            : ""
-        }
+        ${orderId
+      ? `<p>Your order ID is <span class="highlight">${orderId}</span>.</p>`
+      : ""
+    }
+        ${paymentId
+      ? `<p>Your payment ID is <span class="highlight">${paymentId}</span>.</p>`
+      : ""
+    }
+        ${totalAmount !== undefined
+    ? `<p>The total amount for your order is <span class="highlight">₹${totalAmount}</span>.</p>`
+      : ""
+    }
         <p>Your current order status is <span class="highlight">${status}</span>.</p>
         <div class="footer">
           <p>Thank you for choosing us!</p>

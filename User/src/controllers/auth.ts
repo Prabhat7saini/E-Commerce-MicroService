@@ -12,19 +12,18 @@ import {
   sendSuccessResponse,
 } from "../utils/sendResponceFunction";
 
-export const signUp = async (
-  req: SignUpRequest,
-  res: Response
-): Promise<Response> => {
+export const signUp = async (req: SignUpRequest, res: Response): Promise<Response> => {
+
   try {
     const { name, email, password } = req.body;
-
+    const producer = new Producer();
     if (!email || !password || !name) {
       sendErrorResponse(res, 403, errorMessages.FIELD_REQUIRED);
       return;
     }
 
     const checkUserPresent = await User.findOne({ email });
+
     if (checkUserPresent) {
       sendErrorResponse(res, 400, errorMessages.USER_EXIST);
       return;
@@ -38,6 +37,8 @@ export const signUp = async (
       email,
       password: hashedPassword,
     });
+    user.password = undefined;
+    producer.publishMessage("user", user);
     sendSuccessResponse(res, 200, errorMessages.ACCOUNT_CREATED, user);
     return;
   } catch (error) {
@@ -53,8 +54,6 @@ export const login = async (
 ): Promise<Response> => {
   try {
     const { email, password } = req.body;
-    const producer = new Producer();
-
     if (!email || !password) {
       sendErrorResponse(res, 403, errorMessages.FIELD_REQUIRED);
       return;
@@ -84,18 +83,14 @@ export const login = async (
         httpOnly: true,
       };
 
-     
-
       if (!(await client.get(`${user._id}`))) {
         await client.set(`user:${user._id}`, `${user.email},`, "EX", 10800);
       }
 
-      return res.cookie("token", token, options).status(200).json({
-        success: true,
-        token,
-        user,
-        message: "Login was successful. You have access to your account.",
-      });
+console.log(user)
+
+      sendSuccessResponse(res, 200, "User successfully logged in", user);
+      return;
     } else {
       sendErrorResponse(res, 401, errorMessages.Invalid_password);
       return;

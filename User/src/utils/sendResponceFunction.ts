@@ -11,7 +11,7 @@ const sendSuccessResponse = (
   message: string,
   data: SuccessData = {}
 ): Response => {
-  console.log(data);
+  console.log(data,"inside sendSuccessREsponse");
   return res.status(statusCode).json({
     success: true,
     message,

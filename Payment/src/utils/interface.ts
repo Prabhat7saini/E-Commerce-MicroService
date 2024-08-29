@@ -13,3 +13,9 @@ export interface IPayment extends Document {
 export interface Status {
   value: "completed" | "failed";
 }
+
+
+export interface DecodedToken {
+  id: string;
+  email: string;
+}

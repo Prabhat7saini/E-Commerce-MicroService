@@ -5,7 +5,10 @@ const orderMessages = {
   INTERNAL_SERVER_ERROR: "Internal server error",
   INVALID_INPUT: "Invalid input",
   ORDER_NOT_FOUND: "Order not found",
-  ORDER_UPDATE_SUCCESSFULLY: "Order updated successfully",
+  ORDER_UPDATE_SUCCESSFULLY: 'Order fulfilled successfully',
+  NO_APIRES:'No response received from API',
+  Required_FIELD: 'Missing required fields',
+  ERROR_SETTING_API_REQUEST:'Error in setting up API request'
 };
 
 const rabbitmqMessages = {

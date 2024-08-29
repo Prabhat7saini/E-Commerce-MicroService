@@ -1,11 +1,11 @@
 
-import { fulfillment } from "../../config/fullfillmetOfPayment";
+import { fulfillment } from "../../controller/fullfillmetOfPayment";
 import { Router } from "express";
 const router = Router();
 
 
 
-router.get(`/connect`, fulfillment);
+router.post(`/connect`, fulfillment);
 
 
 export default router;

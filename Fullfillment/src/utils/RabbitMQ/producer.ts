@@ -33,7 +33,7 @@ class Producer {
     }
 
     try {
-      await this.channel.assertExchange("fullfillexhange", "direct", {
+      await this.channel.assertExchange(rabbitMQConfig.exchangeName, "direct", {
         durable: false,
       });
 
@@ -46,7 +46,7 @@ class Producer {
       console.log(logDetails,"log details");
 
       this.channel.publish(
-        "fullfillexhange",
+        rabbitMQConfig.exchangeName,
         routingKey,
         Buffer.from(JSON.stringify(logDetails))
       );

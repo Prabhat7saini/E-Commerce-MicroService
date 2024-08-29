@@ -2,6 +2,11 @@
 const messages = {
   PAYMENT_SUCCESS_CREATED: "Payment success created",
   ERROR_PROCESSING_MESSAGE: "Error processing message:",
+  TOKEN_MISSING:"Token is missing",
+  Invalid_Token:"Invalid token",
+  FULLFILLMENT_API_ERROR:"Error in setting up API request",
+  NO_RESPONSE_FROM_API:"No response from API",
+  MISSING_ORDER_ID:'Missing order id '
 };
 
 

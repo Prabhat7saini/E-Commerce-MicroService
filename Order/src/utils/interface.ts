@@ -16,3 +16,10 @@ export interface IOrder extends Document {
   status: "pending" | "completed" | "shipped" | "cancelled"; 
  
 }
+
+
+
+export interface DecodedToken {
+  id: string;
+  email: string;
+}

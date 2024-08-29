@@ -11,6 +11,8 @@ const orderMessages = {
   USER_NOT_FOUND: "User not found",
   TOKEN_MISSING: "token missing",
   Invalid_Token:"invalid token",
+  ORDER_SUCCESSFULYY_FETCH:"Order fetch successfully",
+  
 };
 
 

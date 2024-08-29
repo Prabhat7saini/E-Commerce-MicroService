@@ -4,22 +4,20 @@ import {createEmailBody} from '../config/emailTemplate'
 
 type SendMailForOtpParams = {
   email: string;
-  orderId?: string;
-  paymentId?: string; 
+  emailBody:any
   title: string;
-  status: string;
+  
 };
 
 const sendMails = async ({
   email,
-  orderId,
-  paymentId,
+  emailBody,
   title,
-  status,
+  
 }: SendMailForOtpParams): Promise<void> => {
   try {
     
-    const emailBody = createEmailBody({ orderId, paymentId, status });
+    // const emailBody = createEmailBody({ orderId, paymentId, status });
     const mainResponse = await mailSender({
       email,
       title,

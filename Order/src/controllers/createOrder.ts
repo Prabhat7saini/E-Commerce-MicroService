@@ -8,41 +8,48 @@ import {
   sendSuccessResponse,
 } from "../utils/sendresponceFunction";
 import { client } from "../redis/client";
+import { DecodedToken } from "../utils/interface";
 
-export const createOrder = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const createOrder = async (req: Request & { user?: DecodedToken }, res: Response): Promise<void> => {
   try {
-    const { items, totalAmount, userid } = req.body;
+    const { items, totalAmount } = req.body;
+    const user = req.user;
+    const userid = user.id
+    const email = user.email;
 
-    if (!userid || !items || !totalAmount) {
+    if (!items || !totalAmount) {
       sendErrorResponse(res, 400, message.orderMessages.INVALID_INPUT);
       return;
     }
 
-    const email = await client.get(`user:${userid}`);
+    // const email = await client.get(`user:${userid}`);
     const newOrder: IOrder = new Order({
       userId: userid,
       items: items,
       totalAmount,
     });
-  
-    const orderWithEmail = {
-      ...newOrder.toObject(), 
-      email, 
-    };
+    const OrderData = {
+      orderId: newOrder.orderId,
+      items,
+      totalAmount,
+      email
+    }
+
+ 
+    // Save the order to the database
+
+    console.log(OrderData, "email");
+    await newOrder.save();
+
+    await client.set(`order:${newOrder.orderId}`, JSON.stringify(newOrder), 'EX', 1200);
 
     const producer = new Producer();
-    await producer.publishMessage("info", orderWithEmail);
-    // Save the order to the database
- 
-    console.log(orderWithEmail, "email");
-    await newOrder.save();
+    await producer.publishMessage("order", OrderData);
     sendSuccessResponse(
       res,
       201,
-      message.orderMessages.ORDER_CREATED_SUCCESSFULLY
+      message.orderMessages.ORDER_CREATED_SUCCESSFULLY,
+      newOrder
     );
   } catch (error) {
     console.error(message.orderMessages.ERROR_CREATING_ORDER, error);

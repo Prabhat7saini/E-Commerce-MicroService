@@ -1,8 +1,6 @@
-import message from '../message'
+import message from "../message";
 import amqp from "amqplib";
 import { rabbitMQConfig } from "../../config/rabbitmqconfig";
-
-
 
 type Message = string | object;
 
@@ -10,27 +8,23 @@ class Producer {
   private channel?: amqp.Channel;
   private connection?: amqp.Connection;
 
-  
   private async connectToRabbitMQ(): Promise<void> {
     if (this.connection && this.channel) {
-      return; 
+      return;
     }
 
     try {
-      
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel();
       console.log(message.CONNECTED_AND_CHANNEL_CREATED);
     } catch (error) {
       console.error(message.FAILED_TO_CONNECT, error);
-      throw error; 
+      throw error;
     }
   }
 
-  
   async publishMessage(routingKey: string, message: Message): Promise<void> {
     if (!this.channel || !this.connection) {
-      
       await this.connectToRabbitMQ();
     }
 
@@ -56,9 +50,9 @@ class Producer {
       );
     } catch (error) {
       console.error("Failed to publish message:", error);
-      
+
       if (this.channel && this.connection) {
-        await this.closeConnection(); 
+        await this.closeConnection();
       }
     }
   }
@@ -79,6 +73,5 @@ class Producer {
     }
   }
 }
-
 
 export default Producer;

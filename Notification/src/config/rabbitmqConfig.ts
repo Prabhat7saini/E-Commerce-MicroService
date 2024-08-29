@@ -7,7 +7,7 @@ interface RabbitMQConfig {
 // Define the configuration object
 const rabbitMQConfig: RabbitMQConfig = {
   url: "amqp://localhost",
-  exchangeName: "fullfillexhange",
+  exchangeName: "logExchange",
 };
 
 export { rabbitMQConfig };
