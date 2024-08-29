@@ -23,19 +23,20 @@ export const createPayment = async (req: Request & { user?: DecodedToken }, res:
     const status = paymentProcess();
     if (!orderData) {
       const apiResponse = await axios.get(`${CONFIG_api.GET_ORDER_API}/${orderid}`);
-      console.log('OrderAPI CALL TOGET ORDER')
+      console.log(apiResponse,'OrderAPI CALL TOGET ORDER\n');
       newPayment = new Payment({
-        orderId: apiResponse.data.orderId,
-        amount: apiResponse.data.totalAmount,
+        orderId: apiResponse.data.data.orderId,
+        amount: apiResponse.data.data.totalAmount,
         paymentMethod: "other",
         status: status.value,
       });
 
       await newPayment.save();
+      await client.set(`order:${orderid}`, JSON.stringify(apiResponse.data.data), 'EX', 1200);
     } else {
-      console.log('redis data')
       const redisdata = JSON.parse(orderData);
-      console.log(redisdata, "resdodos");
+      console.log('redis data')
+      console.log(redisdata.orderId, "resdodos");
       newPayment = new Payment({
         orderId: redisdata.orderId,
         amount: redisdata.totalAmount,
